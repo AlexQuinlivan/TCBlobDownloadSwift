@@ -36,28 +36,28 @@ class AddDownloadViewController: UIViewController, UITableViewDataSource, UITabl
     }
     
     @IBAction func onCancel(sender: UIBarButtonItem) {
-        self.dismissViewControllerAnimated(true, completion: nil)
+        self.dismiss(animated: true, completion: nil)
     }
 
     @IBAction func onAddDownload(sender: UIBarButtonItem) {
-        self.addDownload(fromString: self.fieldURL.text)
+        self.addDownload(fromString: self.fieldURL.text ?? "")
     }
 
     func addDownload(fromString string: String) {
         let downloadURL = NSURL(string: string)
-        self.delegate?.addDownloadWithURL(downloadURL, name: self.fieldName.text)
+        self.delegate?.addDownloadWithURL(url: downloadURL, name: self.fieldName.text)
 
-        self.dismissViewControllerAnimated(true, completion: nil)
+        self.dismiss(animated: true, completion: nil)
     }
 
     // MARK: UITableViewDataSource
 
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.downloads.count
     }
 
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("addDownloadCell", forIndexPath: indexPath) as! UITableViewCell
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "addDownloadCell", for: indexPath)
 
         cell.textLabel?.text = self.downloads[indexPath.row].name
         
@@ -66,9 +66,9 @@ class AddDownloadViewController: UIViewController, UITableViewDataSource, UITabl
 
     // MARK: UITableViewDelegate
 
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.fieldURL.text = self.downloads[indexPath.row].url
-        tableView.deselectRowAtIndexPath(indexPath, animated: false)
+        tableView.deselectRow(at: indexPath, animated: false)
     }
 
 }

@@ -8,12 +8,12 @@
 
 import Foundation
 
-public typealias progressionHandler = ((_ progress: Float, _ totalBytesWritten: Int64, _ totalBytesExpectedToWrite: Int64) -> Void)!
-public typealias completionHandler = ((_ error: NSError?, _ location: URL?) -> Void)!
+public typealias progressionHandler = ((_ progress: Float, _ totalBytesWritten: Int64, _ totalBytesExpectedToWrite: Int64) -> Void)
+public typealias completionHandler = ((_ error: NSError?, _ location: URL?) -> Void)
 
 open class TCBlobDownload {
     /// The underlying download task.
-    open let downloadTask: URLSessionDownloadTask
+    public let downloadTask: URLSessionDownloadTask
 
     /// An optional delegate to get notified of events.
     open weak var delegate: TCBlobDownloadDelegate?
@@ -50,6 +50,10 @@ open class TCBlobDownload {
 
         return (URL(string: self.fileName!, relativeTo: destinationPath)! as NSURL).standardizingPath!
     }
+    
+    // Private defaults when closures are not provided
+    private static let defaultProgression: progressionHandler = { _, _, _ in }
+    private static let defaultCompletion: completionHandler = { _, _ in }
 
     /**
         Initialize a new download assuming the `NSURLSessionDownloadTask` was already created.
@@ -59,20 +63,20 @@ open class TCBlobDownload {
         :param: fileName The preferred file name once the download is completed.
         :param: delegate An optional delegate for this download.
     */
-    init(downloadTask: URLSessionDownloadTask, toDirectory directory: URL?, fileName: String?, delegate: TCBlobDownloadDelegate?) {
+    init(downloadTask: URLSessionDownloadTask, toDirectory directory: URL?, fileName: String?, delegate: TCBlobDownloadDelegate?, progression: @escaping progressionHandler = TCBlobDownload.defaultProgression, completion: @escaping completionHandler = TCBlobDownload.defaultCompletion) {
         self.downloadTask = downloadTask
         self.directory = directory
         self.preferedFileName = fileName
         self.delegate = delegate
+        self.progression = progression
+        self.completion = completion
     }
 
     /**
         
     */
     convenience init(downloadTask: URLSessionDownloadTask, toDirectory directory: URL?, fileName: String?, progression: progressionHandler?, completion: completionHandler?) {
-        self.init(downloadTask: downloadTask, toDirectory: directory, fileName: fileName, delegate: nil)
-        self.progression = progression
-        self.completion = completion
+        self.init(downloadTask: downloadTask, toDirectory: directory, fileName: fileName, delegate: nil, progression: progression ?? TCBlobDownload.defaultProgression, completion: completion ?? TCBlobDownload.defaultCompletion)
     }
 
     /**
@@ -111,7 +115,7 @@ open class TCBlobDownload {
 
         :param: completionHandler A completion handler that is called when the download has been successfully canceled. If the download is resumable, the completion handler is provided with a resumeData object.
     */
-    open func cancelWithResumeData(_ completionHandler: @escaping (Data!) -> Void) {
+    open func cancelWithResumeData(_ completionHandler: @escaping (Data?) -> Void) {
         self.downloadTask.cancel(byProducingResumeData: completionHandler)
     }
 
