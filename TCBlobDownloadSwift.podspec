@@ -6,7 +6,8 @@ Pod::Spec.new do |s|
   s.license      = { :type => "MIT", :file => "LICENSE" }
   s.author       = { "Thibault Charbonnier" => "thibaultcha@me.com" }
 
-  s.ios.deployment_target = "8.0"
+  s.swift_version = "4.2"
+  s.ios.deployment_target = '9.0'
   s.osx.deployment_target = "10.9"
 
   s.source       = {
